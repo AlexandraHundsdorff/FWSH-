@@ -1,4 +1,3 @@
-FKS-Lern-App mit Zeichenmodus für Apple Pencil und Finger.
-Alle 99 Symbolbilder sind unverändert aus der bestätigten Version.
-Auf GitHub index.html und den Ordner symbole/ ersetzen.
-Zeichnungen werden nicht gespeichert; Lernfortschritt bleibt lokal im Browser.
+FKS Lern-App mit gemischter Prüfung, Zeichenaufgaben und Selbstbewertung.
+index.html und symbole/ auf GitHub Pages hochladen.
+99 Original-Symbolbilder aus der zuletzt bestätigten Version.
