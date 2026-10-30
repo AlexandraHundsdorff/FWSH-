@@ -1,3 +1,1 @@
-FKS Lern-App mit gemischter Prüfung, Zeichenaufgaben und Selbstbewertung.
-index.html und symbole/ auf GitHub Pages hochladen.
-99 Original-Symbolbilder aus der zuletzt bestätigten Version.
+FKS Lern-App: automatische Bewertung von Multiple Choice und Symbolauswahl; Freitext automatisch anhand der Originalbezeichnung (manuell korrigierbar); Zeichnungen manuell; deutliche farbige Bewertungsrahmen; Fehlerübersicht am Ende.

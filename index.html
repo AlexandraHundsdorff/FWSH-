@@ -1,5 +1,15 @@
 <!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#142d46"><title>FKS Lern-App · Gemischte Prüfung</title><style>
 :root{font-family:system-ui,-apple-system,sans-serif;color:#192b3e;background:#f2f5f8}*{box-sizing:border-box}body{margin:0;padding:12px}main{max-width:860px;margin:auto}header{background:#142d46;color:#fff;border-radius:16px;padding:18px}header h1{margin:0;font-size:1.5rem}header p{margin:6px 0 0;color:#cbdce9}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}button,select,input{font:inherit}button,select{padding:11px;border:1px solid #c6d0db;border-radius:11px;background:#fff;color:#192b3e}button{cursor:pointer}button.primary,.tabs button.active{background:#c72130;color:white;border-color:#c72130}button.good{background:#23784f;color:#fff;border-color:#23784f}button:disabled{opacity:.45}.card{background:white;padding:18px;border-radius:16px;margin:12px 0;box-shadow:0 2px 12px #0001}.hidden{display:none!important}.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:13px 0}.muted{color:#617184;font-size:.94rem}.name{font-size:1.35rem;font-weight:750;text-align:center;margin:12px 0}.symbol{height:190px;max-width:100%;object-fit:contain;display:block;margin:12px auto}.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.answers button{min-height:85px;overflow-wrap:anywhere}.answers img{height:105px;max-width:100%;object-fit:contain}.answers button.selected{border:3px solid #23784f;background:#eff9f3}.field{display:block;margin:12px 0;font-weight:650}.field select,.field input{display:block;width:100%;margin-top:6px;padding:12px;border-radius:9px;border:1px solid #bec8d1}.meter{height:10px;border-radius:20px;background:#e1e8ef;overflow:hidden}.meter div{height:100%;background:#25865e}canvas.board{display:block;width:100%;height:320px;border:2px solid #b9c8d5;border-radius:12px;touch-action:none;background:#fff}.trace-wrap{position:relative}.trace-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;opacity:.2}.trace-wrap canvas{position:relative;background:transparent}.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px}.compare img{width:100%;height:190px;object-fit:contain}.panel{border:1px solid #dce4ed;padding:10px;border-radius:12px;text-align:center}.review{padding:14px 0;border-bottom:1px solid #e3e9ef}.review img{max-width:100%;height:150px;object-fit:contain}.review .compare img{height:180px}.badge{display:inline-block;border-radius:15px;background:#e8eef5;padding:4px 10px;font-size:.85rem}.warning{background:#fff4db;border-radius:10px;padding:12px}.right{color:#19744b}.wrong{color:#b42331}.center{text-align:center}@media(max-width:500px){.compare{grid-template-columns:1fr}.card{padding:13px}canvas.board{height:280px}.tabs button{font-size:.88rem;padding:10px}}
+
+/* Kontrastreiche Bewertungsbuttons */
+.rating-choice{border:3px solid #8a9bac!important;background:#f3f6fa!important;color:#16283a!important;font-weight:750;min-width:125px}
+.rating-choice.rating-correct{background:#176d43!important;border-color:#06472a!important;color:#fff!important;box-shadow:0 0 0 4px #b7ead0}
+.rating-choice.rating-partial{background:#a76500!important;border-color:#754400!important;color:#fff!important;box-shadow:0 0 0 4px #ffe4a1}
+.rating-choice.rating-incorrect{background:#ae2433!important;border-color:#711421!important;color:#fff!important;box-shadow:0 0 0 4px #ffc5cb}
+.error-summary{margin-top:24px;padding:16px;border:3px solid #b42331;border-radius:14px;background:#fff7f7}
+.error-item{padding:12px 0;border-bottom:1px solid #e8b8bd}.error-item:last-child{border-bottom:0}
+.error-item img{height:110px;max-width:100%;object-fit:contain;display:block;margin:7px 0}
+.auto-score{background:#e9f7ef;padding:12px;border-radius:10px}
 </style></head><body><main><header><h1>🚒 FKS-Symbole lernen</h1><p>FKS-Faltkarte Einsatzführung · 11/2022 · 99 Symbole</p></header>
 <nav class="tabs"><button id="navLearn" class="active">📚 Lernen</button><button id="navDraw">✏️ Zeichnen</button><button id="navExam">🏆 Prüfung</button><button id="navHistory">📊 Verlauf</button></nav>
 <section id="learn"><div class="card"><label class="field">Lernmodus<select id="learnMode"><option value="symbol">Symbol → Name</option><option value="name">Name → Symbol</option></select></label><p id="learnCounter" class="muted"></p><div id="learnPrompt"></div><div id="learnSolution" class="hidden"></div><div class="row"><button id="learnReveal" class="primary">Lösung anzeigen</button><button id="learnNext">Weiter →</button></div><div class="row"><button id="learnWrong">🔁 Noch üben</button><button id="learnRight" class="good">✓ Gewusst</button></div></div></section>
@@ -118,10 +128,13 @@ function textCorrect(q){
 function endExam(){
  exam.finished=true;$('examPlay').classList.add('hidden');$('examReview').classList.remove('hidden');
  $('examReviewBody').replaceChildren();$('examReviewBody').classList.remove('hidden');$('examFinal').classList.add('hidden');$('examSave').classList.remove('hidden');
- let p=document.createElement('p');p.className='warning';p.textContent='Bitte prüfe alle Freitext- und Zeichenaufgaben. Bei Freitext sind Abkürzungen oder sinngemässe Antworten möglich, die nicht automatisch erkannt werden.';$('examReviewBody').append(p);
+ let p=document.createElement('p');p.className='warning';p.textContent='Multiple Choice und Symbolauswahl wurden automatisch korrigiert. Bitte kontrolliere nur deine Freitextantworten und Zeichnungen. Exakte Freitexttreffer sind bereits als richtig markiert.';$('examReviewBody').append(p);
  for(let i=0;i<exam.questions.length;i++){
-  let q=exam.questions[i],it=data[q.idx],wrap=document.createElement('div');wrap.className='review';
-  let title=document.createElement('h3');title.textContent=`Frage ${i+1}: ${it.name}`;wrap.append(title);
+  let q=exam.questions[i],it=data[q.idx];
+  if(q.type==='mc'||q.type==='mcAlt'||q.type==='pick'){q.score=q.answer===q.idx?1:0;continue}
+  if(q.type==='text')q.score=textCorrect(q)?1:0;
+  let wrap=document.createElement('div');wrap.className='review';
+  let title=document.createElement('h3');title.textContent=`Frage ${i+1}: ${q.type==='draw'?'Zeichnung':'Freitext'} – ${it.name}`;wrap.append(title);
   if(q.type==='draw'){
    let compare=document.createElement('div');compare.className='compare';
    for(let [title,src] of [['Original',it.img],['Deine Zeichnung',q.answer]]){
@@ -138,7 +151,11 @@ function endExam(){
   if(q.type==='draw'||q.type==='text'){
    let row=document.createElement('div');row.className='row';let hint=document.createElement('span');hint.className='muted';hint.textContent='Selbstbewertung:';row.append(hint);
    for(let [txt,value] of [['✓ Richtig',1],['◐ Teilweise',.5],['✗ Falsch',0]]){
-    let b=document.createElement('button');b.textContent=txt;b.onclick=()=>{q.score=value;for(let child of row.querySelectorAll('button'))child.classList.remove('selected');b.classList.add('selected');b.style.borderColor='#23784f';updateSave()};row.append(b);
+    let b=document.createElement('button');b.textContent=txt;b.className='rating-choice';
+    const cls=value===1?'rating-correct':value===.5?'rating-partial':'rating-incorrect';
+    b.onclick=()=>{q.score=value;for(let child of row.querySelectorAll('button'))child.className='rating-choice';b.classList.add(cls);updateSave()};
+    if(q.score===value)b.classList.add(cls);
+    row.append(b);
    }
    wrap.append(row);
   }
@@ -149,7 +166,7 @@ function endExam(){
 function updateSave(){
  let pending=exam.questions.filter(q=>q.score===null).length;
  $('examSave').disabled=pending>0;
- $('examSave').textContent=pending?`Noch ${pending} Aufgabe(n) bewerten`:'Auswertung abschliessen und speichern';
+ $('examSave').textContent=pending?`Noch ${pending} Zeichnung(en) bewerten`:'Auswertung abschliessen und speichern';
 }
 $('examSave').onclick=()=>{
  if(exam.questions.some(q=>q.score===null))return;
@@ -162,7 +179,20 @@ $('examSave').onclick=()=>{
  let h=document.createElement('h2');h.textContent=passed?'🏆 Bestanden!':'📚 Weiter üben';final.append(h);
  let p=document.createElement('p');p.textContent=`${pct} % · ${points} von ${total} Punkten · Bestehensgrenze ${exam.pass} %`;final.append(p);
  let note=document.createElement('p');note.className='muted';note.textContent='Teilweise richtige Zeichnungen und Freitextantworten zählen mit 0,5 Punkten. Die Selbstbewertung ist nicht automatisch überprüft.';final.append(note);
- let review=document.createElement('button');review.textContent='Einzelaufgaben ansehen';review.onclick=()=>{$('examReviewBody').classList.remove('hidden')};final.append(review);
+ let auto=document.createElement('p');auto.className='auto-score';
+ auto.textContent='Automatisch bewertet: '+exam.questions.filter(q=>['mc','mcAlt','pick'].includes(q.type)).length+' Auswahlfragen. Freitext wurde mit der Originalbezeichnung abgeglichen.';final.append(auto);
+ let errors=exam.questions.map((q,i)=>({q,i})).filter(x=>x.q.score<1);
+ let errBox=document.createElement('section');errBox.className='error-summary';
+ let errTitle=document.createElement('h3');errTitle.textContent='❌ Fehlerübersicht ganz unten ('+errors.length+')';errBox.append(errTitle);
+ if(!errors.length){let ok=document.createElement('p');ok.textContent='Keine Fehler – super!';errBox.append(ok)}
+ for(let {q,i} of errors){let it=data[q.idx],div=document.createElement('div');div.className='error-item';
+  let heading=document.createElement('b');heading.textContent='Frage '+(i+1)+' · '+(q.score===.5?'Teilweise richtig':'Falsch');div.append(heading);
+  let original=document.createElement('p');original.textContent='Richtige Lösung: '+it.name;div.append(original);div.append(pic(it));
+  let answer=document.createElement('p');answer.textContent='Deine Antwort: '+(q.type==='draw'?'siehe Zeichnung oben':q.answer===null?'Keine Antwort':typeof q.answer==='number'?data[q.answer].name:q.answer);div.append(answer);
+  if(q.type==='draw'&&q.answer){let im=document.createElement('img');im.src=q.answer;im.alt='Deine Zeichnung';div.append(im)}
+  errBox.append(div)}
+ final.append(errBox);
+ let review=document.createElement('button');review.textContent='Freitext und Zeichnungen nochmals ansehen';review.onclick=()=>{$('examReviewBody').classList.remove('hidden')};final.append(review);
  let restart=document.createElement('button');restart.className='primary';restart.textContent='Neue Prüfung';restart.onclick=()=>{exam=null;$('examReview').classList.add('hidden');$('examSetup').classList.remove('hidden');$('examReviewBody').classList.remove('hidden')};final.append(restart);
 };
 function showHistory(){
